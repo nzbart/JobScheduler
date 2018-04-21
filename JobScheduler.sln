@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27428.2015
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JobScheduler", "Source\JobScheduler.csproj", "{3DBE0862-8424-418C-A0B5-CDEE09314D90}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3DBE0862-8424-418C-A0B5-CDEE09314D90}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3DBE0862-8424-418C-A0B5-CDEE09314D90}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3DBE0862-8424-418C-A0B5-CDEE09314D90}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3DBE0862-8424-418C-A0B5-CDEE09314D90}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FF43C4B4-647A-4E3B-93D8-F9D531B2CC7F}
+	EndGlobalSection
+EndGlobal
