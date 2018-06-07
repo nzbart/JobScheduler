@@ -12,9 +12,15 @@ namespace JobScheduler
 {
     public class Entry
     {
-        public static async Task Run()
+        /// <summary>
+        /// Launch the scheduled task runner, which will scan the entry assembly
+        /// for instances of IMachineSchedule and IJob.
+        /// </summary>
+        /// <param name="logFilePath">The log file path template. A date will be appended to the file name in yyyyMMdd format.</param>
+        /// <returns></returns>
+        public static async Task Run(string logFilePath = @"Logs\Log.log")
         {
-            Log.Logger = BuildLogger();
+            Log.Logger = BuildLogger(logFilePath);
 
             using (var container = await ConfigureDependencies())
             {
@@ -65,7 +71,7 @@ namespace JobScheduler
             return builder.Build();
         }
 
-        static ILogger BuildLogger() => 
+        static ILogger BuildLogger(string logFilePath) => 
             new LoggerConfiguration()
                 .Enrich.FromLogContext()
                 .Enrich.WithDemystifiedStackTraces()
@@ -75,7 +81,7 @@ namespace JobScheduler
                     outputTemplate: "[{Timestamp:HH:mm:ss} {JobFireInstanceId} {Level:u3}] {Message:lj}{NewLine}{Exception}"
                 )
                 .WriteTo.File(
-                    @"Logs\Log.log",
+                    logFilePath,
                     rollingInterval: RollingInterval.Day,
                     encoding: Encoding.UTF8,
                     retainedFileCountLimit: 30,
