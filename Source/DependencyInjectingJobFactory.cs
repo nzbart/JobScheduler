@@ -1,4 +1,5 @@
-﻿using Autofac;
+using Autofac;
+using JobScheduler.JobHelpers;
 using Quartz;
 using Quartz.Spi;
 
