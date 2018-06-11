@@ -18,7 +18,7 @@ namespace JobScheduler
         /// </summary>
         /// <param name="logFilePath">The log file path template. A date will be appended to the file name in yyyyMMdd format.</param>
         /// <returns></returns>
-        public static async Task Run(string logFilePath = @"Logs\Log.log")
+        public static async Task Run(string logFilePath = @"Logs/Log.log")
         {
             Log.Logger = BuildLogger(logFilePath);
 
