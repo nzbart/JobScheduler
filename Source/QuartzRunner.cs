@@ -26,5 +26,12 @@ namespace JobScheduler
             await _scheduler.Start();
             _logger.Information("Quartz started.");
         }
+
+        public async Task Stop()
+        {
+            _logger.Information("Asking Quartz to shut down.");
+            await _scheduler.Shutdown(true);
+            _logger.Information("Quartz shut down.");
+        }
     }
 }

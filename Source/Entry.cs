@@ -1,6 +1,7 @@
 using System;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
 using Quartz;
@@ -12,27 +13,70 @@ namespace JobScheduler
 {
     public class Entry
     {
+        const string DefaultLogFilePath = @"Logs/Log.log";
+
         /// <summary>
         /// Launch the scheduled task runner, which will scan the entry assembly
         /// for instances of IMachineSchedule and IJob.
         /// </summary>
         /// <param name="logFilePath">The log file path template. A date will be appended to the file name in yyyyMMdd format.</param>
         /// <returns></returns>
-        public static async Task RunAsync(string logFilePath = @"Logs/Log.log")
+        public static async Task RunAsync(string logFilePath = DefaultLogFilePath) => await RunAsync(null, logFilePath);
+
+        /// <summary>
+        /// Launch the scheduled task runner, which will scan the entry assembly
+        /// for instances of IMachineSchedule and IJob.
+        /// </summary>
+        /// <param name="stopHandle">A handle that, when signalled, will initiate shutdown of the scheduler.</param>
+        /// <param name="logFilePath">The log file path template. A date will be appended to the file name in yyyyMMdd format.</param>
+        /// <returns></returns>
+        public static async Task RunAsync(WaitHandle stopHandle, string logFilePath = DefaultLogFilePath)
         {
+            if(logFilePath == null) throw new ArgumentNullException(nameof(logFilePath));
+
             Log.Logger = BuildLogger(logFilePath);
 
-            using (var container = await ConfigureDependencies())
+            try
             {
-                var runner = container.Resolve<QuartzRunner>();
-                await runner.Start();
-                Console.WriteLine("Press 'Q' to quit.");
-                while(char.ToUpperInvariant(Console.ReadKey().KeyChar) != 'Q')
+                using(var container = await ConfigureDependencies())
                 {
-                    await Task.Delay(100);
-                }
+                    var runner = container.Resolve<QuartzRunner>();
+                    try
+                    {
+                        await runner.Start();
+                        if(stopHandle != null)
+                        {
+                            stopHandle.WaitOne();
+                        }
+                        else
+                        {
+                            Console.WriteLine("Press 'Q' to quit.");
+                            while(char.ToUpperInvariant(Console.ReadKey().KeyChar) != 'Q')
+                            {
+                                await Task.Delay(100);
+                            }
 
-                Console.WriteLine("Shutting down.");
+                            Console.WriteLine("Shutting down.");
+                        }
+                    }
+                    catch(Exception ex)
+                    {
+                        Log.Logger.Error(ex, "There was an error while running Quartz.");
+                        throw;
+                    }
+                    finally
+                    {
+                        Log.Logger.Information("Stopping Quartz and waiting for jobs to complete...");
+                        await runner.Stop();
+                        Log.Logger.Information("Quartz stopped.");
+                        Log.Logger.Verbose("Dependencies will be disposed.");
+                    }
+                }
+            }
+            finally
+            {
+                Log.Logger.Verbose("Dependencies have been disposed.");
+                Log.Logger.Information("Job scheduler has completed.");
             }
         }
 

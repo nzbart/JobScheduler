@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Threading.Tasks;
 using Quartz;
 using Serilog;
@@ -22,10 +23,11 @@ namespace JobScheduler.JobHelpers
                 Arguments = commandLine.Arguments,
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
-                RedirectStandardError = true
+                RedirectStandardError = true,
+                WorkingDirectory = commandLine.WorkingDirectory
             };
 
-            Logger.Verbose("Executing the following command-line:\r\n{CommandLine}", processConfig.FileName + " " + processConfig.Arguments);
+            Logger.Verbose("Executing the following command-line:\r\n{CommandLine}\r\nWorking directory:\r\n{WorkingDirectory}", processConfig.FileName + " " + processConfig.Arguments, processConfig.WorkingDirectory);
             var process = Process.Start(processConfig);
             process.OutputDataReceived += (sender, args) =>
             {
