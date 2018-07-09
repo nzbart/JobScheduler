@@ -37,49 +37,54 @@ namespace JobScheduler
         {
             if(logFilePath == null) throw new ArgumentNullException(nameof(logFilePath));
 
-            Log.Logger = BuildLogger(logFilePath);
-
-            try
+            using(var logger = BuildLogger(logFilePath))
             {
-                using(var container = await ConfigureDependencies(dependencies))
-                {
-                    var runner = container.Resolve<QuartzRunner>();
-                    try
-                    {
-                        await runner.Start();
-                        if(stopHandle != null)
-                        {
-                            stopHandle.WaitOne();
-                        }
-                        else
-                        {
-                            Console.WriteLine("Press 'Q' to quit.");
-                            while(char.ToUpperInvariant(Console.ReadKey().KeyChar) != 'Q')
-                            {
-                                await Task.Delay(100);
-                            }
+                Log.Logger = logger;
 
-                            Console.WriteLine("Shutting down.");
+                try
+                {
+                    using(var container = await ConfigureDependencies(dependencies))
+                    {
+                        var runner = container.Resolve<QuartzRunner>();
+                        try
+                        {
+                            await runner.Start();
+                            if(stopHandle != null)
+                            {
+                                stopHandle.WaitOne();
+                            }
+                            else
+                            {
+                                Console.WriteLine("Press 'Q' to quit.");
+                                while(char.ToUpperInvariant(Console.ReadKey().KeyChar) != 'Q')
+                                {
+                                    await Task.Delay(100);
+                                }
+
+                                Console.WriteLine("Shutting down.");
+                            }
                         }
-                    }
-                    catch(Exception ex)
-                    {
-                        Log.Logger.Error(ex, "There was an error while running Quartz.");
-                        throw;
-                    }
-                    finally
-                    {
-                        Log.Logger.Information("Stopping Quartz and waiting for jobs to complete...");
-                        await runner.Stop();
-                        Log.Logger.Information("Quartz stopped.");
-                        Log.Logger.Verbose("Dependencies will be disposed.");
+                        catch(Exception ex)
+                        {
+                            Log.Logger.Error(ex, "There was an error while running Quartz.");
+                            throw;
+                        }
+                        finally
+                        {
+                            Log.Logger.Information("Stopping Quartz and waiting for jobs to complete...");
+                            await runner.Stop();
+                            Log.Logger.Information("Quartz stopped.");
+                            Log.Logger.Verbose("Dependencies will be disposed.");
+                        }
                     }
                 }
-            }
-            finally
-            {
-                Log.Logger.Verbose("Dependencies have been disposed.");
-                Log.Logger.Information("Job scheduler has completed.");
+                finally
+                {
+                    Log.Logger.Verbose("Dependencies have been disposed.");
+                    Log.Logger.Information("Job scheduler has completed.");
+                }
+
+                Log.Logger = null;
             }
         }
 
@@ -116,7 +121,8 @@ namespace JobScheduler
             builder.RegisterSelf();
 
             builder.RegisterInstance(Log.Logger)
-                .As<ILogger>();
+                .As<ILogger>()
+                .ExternallyOwned();
 
             if(dependencies != null)
                 builder.RegisterModule(dependencies);
@@ -124,7 +130,7 @@ namespace JobScheduler
             return builder.Build();
         }
 
-        static ILogger BuildLogger(string logFilePath) => 
+        static Serilog.Core.Logger BuildLogger(string logFilePath) => 
             new LoggerConfiguration()
                 .Enrich.FromLogContext()
                 .Enrich.WithDemystifiedStackTraces()
