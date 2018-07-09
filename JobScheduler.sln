@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.27428.2015
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JobScheduler", "Source\JobScheduler.csproj", "{3DBE0862-8424-418C-A0B5-CDEE09314D90}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sample", "Example\Sample.csproj", "{2535F800-CE45-40BE-92E1-126C28889F67}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetCoreConsoleAppSample", "Samples\DotNetCoreConsoleApp\DotNetCoreConsoleAppSample.csproj", "{4DB9B8C3-105D-487E-818B-69D86E4C6C10}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,10 @@ Global
 		{3DBE0862-8424-418C-A0B5-CDEE09314D90}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3DBE0862-8424-418C-A0B5-CDEE09314D90}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3DBE0862-8424-418C-A0B5-CDEE09314D90}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2535F800-CE45-40BE-92E1-126C28889F67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2535F800-CE45-40BE-92E1-126C28889F67}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2535F800-CE45-40BE-92E1-126C28889F67}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2535F800-CE45-40BE-92E1-126C28889F67}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4DB9B8C3-105D-487E-818B-69D86E4C6C10}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4DB9B8C3-105D-487E-818B-69D86E4C6C10}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4DB9B8C3-105D-487E-818B-69D86E4C6C10}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4DB9B8C3-105D-487E-818B-69D86E4C6C10}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
