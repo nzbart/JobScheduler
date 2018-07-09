@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
+using Autofac.Core;
 using Quartz;
 using Quartz.Impl;
 using Serilog;
@@ -20,8 +21,9 @@ namespace JobScheduler
         /// for instances of IMachineSchedule and IJob.
         /// </summary>
         /// <param name="logFilePath">The log file path template. A date will be appended to the file name in yyyyMMdd format.</param>
+        /// <param name="dependencies">Dependencies that your jobs require.</param>
         /// <returns></returns>
-        public static async Task RunAsync(string logFilePath = DefaultLogFilePath) => await RunAsync(null, logFilePath);
+        public static async Task RunAsync(string logFilePath = DefaultLogFilePath, IModule dependencies = null) => await RunAsync(null, logFilePath, dependencies);
 
         /// <summary>
         /// Launch the scheduled task runner, which will scan the entry assembly
@@ -29,8 +31,9 @@ namespace JobScheduler
         /// </summary>
         /// <param name="stopHandle">A handle that, when signalled, will initiate shutdown of the scheduler.</param>
         /// <param name="logFilePath">The log file path template. A date will be appended to the file name in yyyyMMdd format.</param>
+        /// <param name="dependencies">Dependencies that your jobs require.</param>
         /// <returns></returns>
-        public static async Task RunAsync(WaitHandle stopHandle, string logFilePath = DefaultLogFilePath)
+        public static async Task RunAsync(WaitHandle stopHandle, string logFilePath = DefaultLogFilePath, IModule dependencies = null)
         {
             if(logFilePath == null) throw new ArgumentNullException(nameof(logFilePath));
 
@@ -38,7 +41,7 @@ namespace JobScheduler
 
             try
             {
-                using(var container = await ConfigureDependencies())
+                using(var container = await ConfigureDependencies(dependencies))
                 {
                     var runner = container.Resolve<QuartzRunner>();
                     try
@@ -80,7 +83,7 @@ namespace JobScheduler
             }
         }
 
-        static async Task<IContainer> ConfigureDependencies()
+        static async Task<IContainer> ConfigureDependencies(IModule dependencies)
         {
             var factory = new StdSchedulerFactory();
             var scheduler = await factory.GetScheduler();
@@ -109,9 +112,15 @@ namespace JobScheduler
             builder
                 .RegisterType<DependencyInjectingJobFactory>()
                 .AsSelf();
+
             builder.RegisterSelf();
+
             builder.RegisterInstance(Log.Logger)
                 .As<ILogger>();
+
+            if(dependencies != null)
+                builder.RegisterModule(dependencies);
+
             return builder.Build();
         }
 
