@@ -37,54 +37,49 @@ namespace JobScheduler
         {
             if(logFilePath == null) throw new ArgumentNullException(nameof(logFilePath));
 
-            using(var logger = BuildLogger(logFilePath))
+            Log.Logger = BuildLogger(logFilePath);
+
+            try
             {
-                Log.Logger = logger;
-
-                try
+                using(var container = await ConfigureDependencies(dependencies))
                 {
-                    using(var container = await ConfigureDependencies(dependencies))
+                    var runner = container.Resolve<QuartzRunner>();
+                    try
                     {
-                        var runner = container.Resolve<QuartzRunner>();
-                        try
+                        await runner.Start();
+                        if(stopHandle != null)
                         {
-                            await runner.Start();
-                            if(stopHandle != null)
+                            stopHandle.WaitOne();
+                        }
+                        else
+                        {
+                            Console.WriteLine("Press 'Q' to quit.");
+                            while(char.ToUpperInvariant(Console.ReadKey().KeyChar) != 'Q')
                             {
-                                stopHandle.WaitOne();
+                                await Task.Delay(100);
                             }
-                            else
-                            {
-                                Console.WriteLine("Press 'Q' to quit.");
-                                while(char.ToUpperInvariant(Console.ReadKey().KeyChar) != 'Q')
-                                {
-                                    await Task.Delay(100);
-                                }
 
-                                Console.WriteLine("Shutting down.");
-                            }
-                        }
-                        catch(Exception ex)
-                        {
-                            Log.Logger.Error(ex, "There was an error while running Quartz.");
-                            throw;
-                        }
-                        finally
-                        {
-                            Log.Logger.Information("Stopping Quartz and waiting for jobs to complete...");
-                            await runner.Stop();
-                            Log.Logger.Information("Quartz stopped.");
-                            Log.Logger.Verbose("Dependencies will be disposed.");
+                            Console.WriteLine("Shutting down.");
                         }
                     }
+                    catch(Exception ex)
+                    {
+                        Log.Logger.Error(ex, "There was an error while running Quartz.");
+                        throw;
+                    }
+                    finally
+                    {
+                        Log.Logger.Information("Stopping Quartz and waiting for jobs to complete...");
+                        await runner.Stop();
+                        Log.Logger.Information("Quartz stopped.");
+                        Log.Logger.Verbose("Dependencies will be disposed.");
+                    }
                 }
-                finally
-                {
-                    Log.Logger.Verbose("Dependencies have been disposed.");
-                    Log.Logger.Information("Job scheduler has completed.");
-                }
-
-                Log.Logger = null;
+            }
+            finally
+            {
+                Log.Logger.Verbose("Dependencies have been disposed.");
+                Log.Logger.Information("Job scheduler has completed.");
             }
         }
 
