@@ -7,18 +7,18 @@ namespace JobScheduler
 {
     class DependencyInjectingJobFactory : IJobFactory
     {
-        readonly IContainer _container;
+        readonly ILifetimeScope _lifetimeScope;
 
-        public DependencyInjectingJobFactory(IContainer container)
+        public DependencyInjectingJobFactory(ILifetimeScope lifetimeScope)
         {
-            _container = container;
+            _lifetimeScope = lifetimeScope;
         }
 
         public IJob NewJob(TriggerFiredBundle bundle, IScheduler scheduler)
         {
-            var scope = _container.BeginLifetimeScope();
+            var scope = _lifetimeScope.BeginLifetimeScope();
             var type = bundle.JobDetail.JobType;
-            var job = (IJob)_container.Resolve(type);
+            var job = (IJob)_lifetimeScope.Resolve(type);
             return new DependencyInjectedJob(job, scope);
         }
 

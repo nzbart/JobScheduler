@@ -6,7 +6,7 @@ namespace JobScheduler
     {
         public static void RegisterSelf(this ContainerBuilder builder)
         {
-            IContainer container = null;
+            ILifetimeScope container = null;
             builder.Register(c => container).AsSelf();
             builder.RegisterBuildCallback(c => container = c);
         }
