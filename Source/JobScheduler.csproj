@@ -16,7 +16,6 @@
   <ItemGroup>
     <PackageReference Include="Autofac" Version="6.2.0" />
     <PackageReference Include="Quartz" Version="3.3.2" />
-    <PackageReference Include="Serilog.Enrichers.Demystify" Version="1.0.0-dev-00019" />
     <PackageReference Include="Serilog.Sinks.Console" Version="4.0.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
   </ItemGroup>

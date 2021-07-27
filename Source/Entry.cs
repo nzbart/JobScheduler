@@ -128,7 +128,6 @@ namespace JobScheduler
         static Serilog.Core.Logger BuildLogger(string logFilePath) => 
             new LoggerConfiguration()
                 .Enrich.FromLogContext()
-                .Enrich.WithDemystifiedStackTraces()
                 .MinimumLevel.Verbose()
                 .WriteTo.Console(
                     LogEventLevel.Information,
