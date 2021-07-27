@@ -1,12 +1,13 @@
-﻿using JobScheduler;
+﻿using System.Threading.Tasks;
+using JobScheduler;
 
 namespace myapp
 {
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
-            Entry.Run();
+            await Entry.RunAsync();
         }
     }
 }

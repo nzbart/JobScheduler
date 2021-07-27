@@ -1,6 +1,5 @@
-using System;
 using System.Threading.Tasks;
-using JobScheduler;
+using JobScheduler.JobHelpers;
 using Quartz;
 using Serilog;
 
